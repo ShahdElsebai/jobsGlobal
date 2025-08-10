@@ -28,5 +28,5 @@ export interface Location {
 
 export interface Page {
   name: string;
-  work_space_meta_data: WorkspaceMeta;
+  work_space_meta_data?: WorkspaceMeta;
 }
