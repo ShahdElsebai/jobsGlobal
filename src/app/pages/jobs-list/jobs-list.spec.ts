@@ -5,7 +5,6 @@ import { JobService } from './services/job-service';
 import { signal, WritableSignal } from '@angular/core';
 import { Job } from './model/jobs-list.model';
 
-// Mock jobs data
 const mockJobs: Job[] = [
   {
     id: '1',
@@ -31,7 +30,6 @@ const mockJobs: Job[] = [
   },
 ];
 
-// Mock JobService
 class MockJobService {
   jobs: WritableSignal<Job[]> = signal(mockJobs);
   loading = signal(false);
@@ -68,7 +66,6 @@ describe('JobsList', () => {
     component = fixture.componentInstance;
     jobService = TestBed.inject(JobService) as unknown as MockJobService;
 
-    // Trigger initial fetch
     jobService.fetchJobs();
     fixture.detectChanges();
   });

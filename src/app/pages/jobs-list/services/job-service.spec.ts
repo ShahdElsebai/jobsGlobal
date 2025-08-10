@@ -6,7 +6,6 @@ import {
 } from '@angular/common/http/testing';
 import { JobService } from './job-service';
 import { environment } from '../../../../environments/environments';
-import { Job } from '../model/jobs-list.model';
 
 describe('JobService', () => {
   let service: JobService;
