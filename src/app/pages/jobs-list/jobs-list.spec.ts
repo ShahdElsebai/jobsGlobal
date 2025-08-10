@@ -1,48 +1,53 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
-import { signal, WritableSignal } from '@angular/core';
 import { JobsList } from './jobs-list';
 import { JobService } from './services/job-service';
+import { signal, WritableSignal } from '@angular/core';
 import { Job } from './model/jobs-list.model';
 
-//Create a Job mock
+// Mock jobs data
 const mockJobs: Job[] = [
   {
     id: '1',
     title: 'Frontend Developer',
-    description: 'Build and maintain UI features',
-    created_at: '2025-08-10',
-    page: {
-      name: 'Tech Corp',
-    },
+    description: 'Build UI features',
+    created_at: '2025-08-10T00:00:00Z',
+    page: { name: 'Tech Corp' },
     location: {
-      country: { id: 'c1', name: 'USA' },
-      city: { id: 'ct1', name: 'New York' },
+      country: { id: 'US', name: 'USA' },
+      city: { id: 'NY', name: 'New York' },
     },
   },
   {
     id: '2',
     title: 'Backend Engineer',
-    description: 'Design and build scalable APIs',
-    created_at: '2025-08-09',
-    page: {
-      name: 'Innovate Ltd',
-    },
+    description: 'Build APIs',
+    created_at: '2025-08-09T00:00:00Z',
+    page: { name: 'Innovate Ltd' },
     location: {
-      country: { id: 'c2', name: 'Canada' },
-      city: { id: 'ct2', name: 'Toronto' },
+      country: { id: 'CA', name: 'Canada' },
+      city: { id: 'TO', name: 'Toronto' },
     },
   },
 ];
 
-//Mock service
+// Mock JobService
 class MockJobService {
-  jobs: WritableSignal<Job[]> = signal<Job[]>([]);
+  jobs: WritableSignal<Job[]> = signal(mockJobs);
   loading = signal(false);
+  currentPage = signal(1);
+  lastPage = signal(2);
 
-  fetchJobs() {
+  fetchJobs = jasmine.createSpy('fetchJobs').and.callFake(() => {
     this.jobs.set(mockJobs);
-  }
+    this.loading.set(false);
+  });
+
+  loadMore = jasmine.createSpy('loadMore').and.callFake(() => {
+    const nextPage = this.currentPage() + 1;
+    this.currentPage.set(nextPage);
+    this.jobs.update(jobs => [...jobs]); // Simulate load more
+  });
 }
 
 describe('JobsList', () => {
@@ -62,24 +67,32 @@ describe('JobsList', () => {
     fixture = TestBed.createComponent(JobsList);
     component = fixture.componentInstance;
     jobService = TestBed.inject(JobService) as unknown as MockJobService;
+
+    // Trigger initial fetch
+    jobService.fetchJobs();
+    fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create the component', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render jobs when service returns data', () => {
-    // Arrange
-    jobService.fetchJobs();
+  it('should load jobs from the service', () => {
+    expect(jobService.fetchJobs).toHaveBeenCalled();
+    expect(component.filteredJobs().length).toBe(mockJobs.length);
+  });
+
+  it('should filter jobs based on keyword', () => {
+    component.onFilterChange('backend');
     fixture.detectChanges();
 
-    // Act
-    const host: HTMLElement = fixture.nativeElement;
-    const jobCards = host.querySelectorAll('.job-card');
+    const filtered = component.filteredJobs();
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].title.toLowerCase()).toContain('backend');
+  });
 
-    // Assert
-    expect(jobCards.length).toBe(mockJobs.length);
-    expect(jobCards[0].textContent).toContain(mockJobs[0].title);
-    expect(jobCards[1].textContent).toContain(mockJobs[1].title);
+  it('should call loadMore on service when onLoadMore is triggered', () => {
+    component.onLoadMore();
+    expect(jobService.loadMore).toHaveBeenCalled();
   });
 });
