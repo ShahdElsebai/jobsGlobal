@@ -1,11 +1,70 @@
-<div class="fixed top-4 right-4 space-y-2 z-50">
+<div
+  class="fixed z-50 inset-x-4 top-4 sm:inset-auto sm:top-4 sm:right-4 sm:w-96 space-y-3 pointer-events-none"
+  aria-live="polite">
   @for (toast of toastService.toasts(); track toast.id) {
     <div
-      class="max-w-xs rounded px-4 py-2 shadow text-white"
-      [class.bg-green-600]="toast.type === 'success'"
-      [class.bg-red-600]="toast.type === 'error'"
-      [class.bg-blue-600]="toast.type === 'info'">
-      {{ toast.message }}
+      class="pointer-events-auto flex items-start gap-3 rounded-lg px-4 py-3 shadow-lg ring-1 ring-black/10 bg-white text-gray-900"
+      [attr.role]="toast.type === 'error' ? 'alert' : 'status'">
+      @if (toast.type === 'success') {
+        <span
+          class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-green-100 text-green-700">
+          <svg
+            class="h-3.5 w-3.5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true">
+            <path
+              d="M16.7 5.3a1 1 0 00-1.4-1.4L8 11.17 4.7 7.88a1 1 0 10-1.4 1.42l4 4a1 1 0 001.4 0l8-8z" />
+          </svg>
+        </span>
+      } @else if (toast.type === 'error') {
+        <span
+          class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-red-700">
+          <svg
+            class="h-3.5 w-3.5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true">
+            <path
+              d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
+          </svg>
+        </span>
+      } @else {
+        <span
+          class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-blue-700">
+          <svg
+            class="h-3.5 w-3.5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true">
+            <path
+              d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9V9h2v4zm0-6H9V5h2v2z" />
+          </svg>
+        </span>
+      }
+
+      <!-- message -->
+      <div class="flex-1 text-sm leading-snug">
+        {{ toast.message }}
+      </div>
+
+      <!-- close -->
+      <button
+        type="button"
+        class="ml-2 shrink-0 rounded p-1 text-gray-500 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        (click)="toastService.remove(toast.id)"
+        aria-label="Dismiss notification">
+        <svg
+          class="h-4 w-4"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          aria-hidden="true">
+          <path
+            fill-rule="evenodd"
+            d="M4.3 4.3a1 1 0 011.4 0L10 8.59l4.3-4.3a1 1 0 111.4 1.42L11.41 10l4.3 4.3a1 1 0 01-1.42 1.4L10 11.41l-4.3 4.3a1 1 0 01-1.4-1.42L8.59 10 4.3 5.7a1 1 0 010-1.4z"
+            clip-rule="evenodd" />
+        </svg>
+      </button>
     </div>
   }
 </div>

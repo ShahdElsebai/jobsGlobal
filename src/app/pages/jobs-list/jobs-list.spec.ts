@@ -16,6 +16,7 @@ const mockJobs: Job[] = [
       country: { id: 'US', name: 'USA' },
       city: { id: 'NY', name: 'New York' },
     },
+    type: 'full-time',
   },
   {
     id: '2',
@@ -27,6 +28,7 @@ const mockJobs: Job[] = [
       country: { id: 'CA', name: 'Canada' },
       city: { id: 'TO', name: 'Toronto' },
     },
+    type: 'full-time',
   },
 ];
 
@@ -44,7 +46,7 @@ class MockJobService {
   loadMore = jasmine.createSpy('loadMore').and.callFake(() => {
     const nextPage = this.currentPage() + 1;
     this.currentPage.set(nextPage);
-    this.jobs.update(jobs => [...jobs]); // Simulate load more
+    this.jobs.update(jobs => [...jobs]);
   });
 }
 

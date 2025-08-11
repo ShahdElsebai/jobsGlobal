@@ -1,6 +1,6 @@
 @if (isOpen()) {
   <div
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
     role="dialog"
     aria-modal="true"
     (click)="close()"
@@ -8,14 +8,14 @@
     (keydown.enter)="close()"
     (keydown.space)="close()">
     <div
-      class="bg-white rounded-lg max-w-xl w-full p-6 relative"
+      class="relative w-full max-w-xl bg-white rounded-xl shadow-2xl ring-1 ring-black/10 p-6 focus:outline-none transition-transform duration-200 ease-out"
       (click)="$event.stopPropagation()"
       tabindex="0"
       role="document"
       (keydown.enter)="$event.stopPropagation()">
       <button
         aria-label="Close modal"
-        class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+        class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
         (click)="close()"
         (keydown.enter)="close()"
         (keydown.space)="close()">
@@ -33,7 +33,7 @@
 
         <div class="flex gap-4">
           <button
-            class="btn-primary flex-1"
+            class="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
             (click)="applyClicked()"
             [disabled]="applied()">
             @if (applied()) {
@@ -43,7 +43,9 @@
             }
           </button>
 
-          <button class="btn-secondary flex-1" (click)="saveClicked()">
+          <button
+            class="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            (click)="saveClicked()">
             Save Job
           </button>
         </div>

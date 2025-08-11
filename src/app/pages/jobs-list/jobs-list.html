@@ -1,10 +1,27 @@
-<div class="container mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold mb-8 text-center">Latest Job Listings</h1>
+<div class="container mx-auto p-4 sm:p-6 lg:p-8">
+  <div
+    class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <h1 class="text-3xl font-bold text-center sm:text-left m-0">
+      Latest Job Listings
+    </h1>
 
-  <app-jobs-filter (filterChanged)="onFilterChange($event)"></app-jobs-filter>
+    <div class="w-full sm:w-80">
+      <app-jobs-filter
+        (filterChanged)="onFilterChange($event)"></app-jobs-filter>
+    </div>
+  </div>
 
   @if (initialLoading()) {
-    <p class="text-center text-gray-500">Loading jobs...</p>
+    <div class="min-h-[40vh] sm:min-h-[50vh] flex items-center justify-center">
+      <span
+        class="inline-flex items-center gap-3 text-gray-600"
+        role="status"
+        aria-live="polite">
+        <span
+          class="h-6 w-6 rounded-full border-2 border-gray-300 border-t-blue-600 animate-spin"></span>
+        <span>Loading jobs…</span>
+      </span>
+    </div>
   } @else {
     @if (filteredJobs().length) {
       <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

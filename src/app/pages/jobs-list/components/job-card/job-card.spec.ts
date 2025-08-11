@@ -18,6 +18,7 @@ describe('JobCard', () => {
       country: { id: 'US', name: 'USA' },
       city: { id: 'NY', name: 'New York' },
     },
+    type: 'full-time',
   };
 
   beforeEach(async () => {

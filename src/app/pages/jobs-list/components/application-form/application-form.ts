@@ -65,11 +65,14 @@ export class ApplicationForm {
     if (file.size > 3 * 1024 * 1024) {
       this.fileError.set('File size exceeds 3MB limit');
       this.selectedFile = null;
+      this.toast.show('File size exceeds 3MB limit', ToastTypes.Error);
     } else {
       this.fileError.set(null);
       this.selectedFile = file;
+      this.toast.show('CV attached ', ToastTypes.Info, 1800);
     }
   }
+
   isControlInvalid(controlName: keyof typeof this.form.controls): boolean {
     const control: FormControl<string | null> = this.form.controls[controlName];
     return control.invalid && control.touched;
@@ -88,7 +91,6 @@ export class ApplicationForm {
       this.submitting.set(false);
       const jobId: string = this.job()?.id || '';
       if (jobId) {
-        // Track applied job locally if you want
         this.appliedJobs.add(jobId);
         this.toast.show(
           'Application submitted successfully!',
