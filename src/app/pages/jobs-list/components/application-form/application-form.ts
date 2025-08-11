@@ -37,7 +37,6 @@ export class ApplicationForm {
   fileError: WritableSignal<string | null> = signal<string | null>(null);
   selectedFile: File | null = null;
 
-  // Optional local set to track applied jobs if you want
   appliedJobs: Set<string> = new Set<string>();
 
   form: FormGroup<ApplicationFormItems> = new FormGroup<ApplicationFormItems>({
