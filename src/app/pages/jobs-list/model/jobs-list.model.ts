@@ -19,6 +19,7 @@ export interface Job {
   created_at: string;
   page: Page;
   location: Location | null;
+  type: string;
 }
 
 export interface Location {

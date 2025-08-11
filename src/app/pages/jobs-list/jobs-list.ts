@@ -2,24 +2,31 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  Signal,
   signal,
   WritableSignal,
+  Signal,
+  ViewChild,
 } from '@angular/core';
 import { JobCard } from './components/job-card/job-card';
 import { JobsFilter } from './components/jobs-filter/jobs-filter';
 import { JobsPagination } from './components/jobs-pagination/jobs-pagination';
 import { JobService } from './services/job-service';
 import { Job } from './model/jobs-list.model';
+import { JobModal } from './components/job-modal/job-modal';
 
 @Component({
   selector: 'app-jobs-list',
-  imports: [JobCard, JobsFilter, JobsPagination],
+  imports: [JobCard, JobsFilter, JobsPagination, JobModal],
   templateUrl: './jobs-list.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
 })
 export class JobsList {
   filterKeyword: WritableSignal<string> = signal('');
+  selectedJob: WritableSignal<Job | null> = signal<Job | null>(null);
+  appliedJobIds: WritableSignal<Set<string>> = signal<Set<string>>(new Set());
+
+  @ViewChild('jobModal') jobModal!: JobModal;
 
   constructor(public jobService: JobService) {
     this.jobService.fetchJobs();
@@ -48,11 +55,28 @@ export class JobsList {
       this.jobService.currentPage() >= this.jobService.lastPage()
   );
 
+  openModalWithJob(job: Job): void {
+    this.selectedJob.set(job);
+    this.jobModal.open(job);
+  }
+
+  closeModal(): void {
+    this.jobModal.close();
+  }
+
   onFilterChange(keyword: string): void {
     this.filterKeyword.set(keyword);
   }
 
   onLoadMore(): void {
     this.jobService.loadMore();
+  }
+
+  onApplied(jobId: string): void {
+    this.appliedJobIds.update((prev: Set<string>) => {
+      const next: Set<string> = new Set<string>(prev);
+      next.add(jobId);
+      return next;
+    });
   }
 }
