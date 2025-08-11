@@ -1,50 +1,58 @@
-@if (job()) {
+@if (isOpen()) {
   <div
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    role="button"
+    role="dialog"
+    aria-modal="true"
+    (click)="close()"
     tabindex="0"
-    (click)="closeModal()"
-    (keydown.enter)="closeModal()"
-    (keydown.space)="closeModal()">
+    (keydown.enter)="close()"
+    (keydown.space)="close()">
     <div
       class="bg-white rounded-lg max-w-xl w-full p-6 relative"
-      role="button"
-      tabindex="0"
       (click)="$event.stopPropagation()"
-      (keydown.enter)="$event.stopPropagation()"
-      (keydown.space)="$event.stopPropagation()">
+      tabindex="0"
+      role="document"
+      (keydown.enter)="$event.stopPropagation()">
       <button
         aria-label="Close modal"
+        class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
         (click)="close()"
-        (focus)="(true)"
-        (keypress)="close()"
-        class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+        (keydown.enter)="close()"
+        (keydown.space)="close()">
         ✕
       </button>
 
-      <h2 class="text-2xl font-bold mb-4">{{ job()!.title }}</h2>
-      <p class="mb-2 font-semibold">{{ job()!.page.name }}</p>
-      <p class="text-gray-600 mb-4">
-        {{ job()!.location?.city?.name }}, {{ job()!.location?.country?.name }}
-      </p>
-      <p class="mb-6 text-gray-700">{{ job()!.description }}</p>
+      @if (!showApplicationForm()) {
+        <h2 class="text-2xl font-bold mb-4">{{ job()?.title }}</h2>
+        <p class="mb-2 font-semibold">{{ job()?.page?.name }}</p>
+        <p class="text-gray-600 mb-4">
+          {{ job()?.location?.city?.name }},
+          {{ job()?.location?.country?.name }}
+        </p>
+        <p class="mb-6 text-gray-700">{{ job()?.description }}</p>
 
-      <div class="flex gap-4">
-        <button
-          class="btn-primary flex-1"
-          (click)="applyClicked()"
-          [disabled]="applied()">
-          @if (applied()) {
-            <span>Applied ✓</span>
-          } @else {
-            <span>Apply</span>
-          }
-        </button>
+        <div class="flex gap-4">
+          <button
+            class="btn-primary flex-1"
+            (click)="applyClicked()"
+            [disabled]="applied()">
+            @if (applied()) {
+              <span>Applied ✓</span>
+            } @else {
+              <span>Apply</span>
+            }
+          </button>
 
-        <button class="btn-secondary flex-1" (click)="saveClicked()">
-          Save Job
-        </button>
-      </div>
+          <button class="btn-secondary flex-1" (click)="saveClicked()">
+            Save Job
+          </button>
+        </div>
+      } @else {
+        <app-application-form
+          [job]="job()"
+          (submitSuccess)="onSubmitSuccess()"
+          (cancelForm)="cancelApplication()"></app-application-form>
+      }
     </div>
   </div>
 }

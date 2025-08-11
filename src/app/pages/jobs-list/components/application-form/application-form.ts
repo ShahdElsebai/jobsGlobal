@@ -29,7 +29,7 @@ import { ApplicationFormItems } from './model/application-form.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApplicationForm {
-  job: InputSignal<Job> = input.required<Job>();
+  job: InputSignal<Job | null> = input<Job | null>(null);
   submitSuccess: OutputEmitterRef<string> = output<string>();
   cancelForm: OutputEmitterRef<void> = output<void>();
 
@@ -86,7 +86,7 @@ export class ApplicationForm {
 
     setTimeout(() => {
       this.submitting.set(false);
-      const jobId: string = this.job()?.id;
+      const jobId: string = this.job()?.id || '';
       if (jobId) {
         // Track applied job locally if you want
         this.appliedJobs.add(jobId);

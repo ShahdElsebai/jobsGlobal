@@ -1,6 +1,11 @@
 @if (job()) {
   <div
-    class="job-card bg-white shadow-md rounded-lg p-6 flex flex-col justify-between">
+    class="job-card bg-white shadow-md rounded-lg p-6 flex flex-col justify-between cursor-pointer"
+    (click)="onClick()"
+    role="button"
+    tabindex="0"
+    (keydown.enter)="onClick()"
+    (keydown.space)="onClick()">
     <div>
       <h2 class="text-xl font-semibold mb-2">{{ job().title }}</h2>
       <p class="text-gray-700 font-medium">{{ job().page.name }}</p>
