@@ -1,16 +1,18 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  input,
-  InputSignal,
-  output,
-  OutputEmitterRef,
+  computed,
   signal,
   WritableSignal,
+  inject,
+  Signal,
+  ElementRef,
+  ViewChild,
 } from '@angular/core';
-import { Job } from '../../model/jobs-list.model';
 import { CommonModule } from '@angular/common';
 import { ApplicationForm } from '../application-form/application-form';
+import { Job } from '../../model/jobs-list.model';
+import { JobsStore, JobsStoreInstance } from '../../state/jobs.store';
 import { ToastService } from '../../../../shared/component/toast/service/toast-service';
 import { ToastTypes } from '../../../../shared/component/toast/model/toast.model';
 
@@ -23,29 +25,30 @@ import { ToastTypes } from '../../../../shared/component/toast/model/toast.model
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JobModal {
-  job: WritableSignal<Job | null> = signal(null);
+  private readonly store: JobsStoreInstance = inject(JobsStore);
+  private readonly toast: ToastService = inject(ToastService);
 
+  @ViewChild('dialogRef') dialogRef!: ElementRef<HTMLDivElement>;
+
+  job: WritableSignal<Job | null> = signal<Job | null>(null);
   isOpen: WritableSignal<boolean> = signal(false);
 
-  applied: WritableSignal<boolean> = signal(false);
+  applied: Signal<boolean> = computed(() => {
+    const j: Job | null = this.job();
+    return j ? this.store.appliedJobIds().has(j.id) : false;
+  });
+  isSaved: Signal<boolean> = computed(() => {
+    const j: Job | null = this.job();
+    return j ? this.store.savedIds().has(j.id) : false;
+  });
+
   applyJob: WritableSignal<Job | null> = signal<Job | null>(null);
-  savedIds: WritableSignal<Set<string>> = signal(new Set());
-  isSaved: WritableSignal<boolean> = signal(false);
   saveJob: WritableSignal<Job | null> = signal<Job | null>(null);
-
   showApplicationForm: WritableSignal<boolean> = signal(false);
-
-  appliedJobIds: InputSignal<Set<string>> = input<Set<string>>(new Set());
-
-  appliedJob: OutputEmitterRef<string> = output<string>();
-
-  constructor(private toast: ToastService) {}
 
   open(job: Job): void {
     this.job.set(job);
     this.isOpen.set(true);
-    this.applied.set(this.appliedJobIds().has(job.id));
-    this.isSaved.set(this.savedIds().has(job.id));
     this.showApplicationForm.set(false);
   }
 
@@ -65,8 +68,7 @@ export class JobModal {
   onSubmitSuccess(): void {
     const id: string | undefined = this.job()?.id;
     if (id) {
-      this.applied.set(true);
-      this.appliedJob.emit(id);
+      this.store.markApplied(id);
       this.toast.show(
         'Application submitted successfully!',
         ToastTypes.Success
@@ -79,18 +81,12 @@ export class JobModal {
   cancelApplication(): void {
     this.showApplicationForm.set(false);
   }
+
   saveClicked(): void {
     const j: Job | null = this.job();
     if (!j || this.isSaved()) return;
     this.saveJob.set(j);
-
-    this.savedIds.update((prev: Set<string>) => {
-      const next: Set<string> = new Set<string>(prev);
-      next.add(j.id);
-      return next;
-    });
-    this.isSaved.set(true);
-
+    this.store.markSaved(j.id);
     this.toast.show('Saved successfully!', ToastTypes.Success);
     this.close();
   }

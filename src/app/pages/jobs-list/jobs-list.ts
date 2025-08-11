@@ -1,18 +1,18 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
-  signal,
-  WritableSignal,
   Signal,
   ViewChild,
+  WritableSignal,
+  inject,
+  signal,
 } from '@angular/core';
 import { JobCard } from './components/job-card/job-card';
 import { JobsFilter } from './components/jobs-filter/jobs-filter';
 import { JobsPagination } from './components/jobs-pagination/jobs-pagination';
-import { JobService } from './services/job-service';
 import { Job } from './model/jobs-list.model';
 import { JobModal } from './components/job-modal/job-modal';
+import { JobsStore, JobsStoreInstance } from './state/jobs.store';
 
 @Component({
   selector: 'app-jobs-list',
@@ -22,38 +22,19 @@ import { JobModal } from './components/job-modal/job-modal';
   standalone: true,
 })
 export class JobsList {
-  filterKeyword: WritableSignal<string> = signal('');
+  readonly store: JobsStoreInstance = inject(JobsStore);
+
   selectedJob: WritableSignal<Job | null> = signal<Job | null>(null);
-  appliedJobIds: WritableSignal<Set<string>> = signal<Set<string>>(new Set());
 
   @ViewChild('jobModal') jobModal!: JobModal;
 
-  constructor(public jobService: JobService) {
-    this.jobService.fetchJobs();
+  constructor() {
+    this.store.fetchJobs();
   }
 
-  filteredJobs: Signal<Job[]> = computed(() => {
-    const keyword: string = this.filterKeyword().toLowerCase().trim();
-    if (!keyword) return this.jobService.jobs();
-
-    return this.jobService.jobs().filter((job: Job) => {
-      const titleMatch: boolean = job.title.toLowerCase().includes(keyword);
-      const locationString: string =
-        `${job.location?.city?.name ?? ''} ${job.location?.country?.name ?? ''}`.toLowerCase();
-      const locationMatch: boolean = locationString.includes(keyword);
-      return titleMatch || locationMatch;
-    });
-  });
-
-  initialLoading: Signal<boolean> = computed(
-    () => this.jobService.loading() && this.jobService.jobs().length === 0
-  );
-
-  loadMoreDisabled: Signal<boolean> = computed(
-    () =>
-      this.jobService.loading() ||
-      this.jobService.currentPage() >= this.jobService.lastPage()
-  );
+  filteredJobs: Signal<Job[]> = this.store.filteredJobs;
+  initialLoading: Signal<boolean> = this.store.initialLoading;
+  loadMoreDisabled: Signal<boolean> = this.store.loadMoreDisabled;
 
   openModalWithJob(job: Job): void {
     this.selectedJob.set(job);
@@ -65,18 +46,14 @@ export class JobsList {
   }
 
   onFilterChange(keyword: string): void {
-    this.filterKeyword.set(keyword);
+    this.store.setFilter(keyword);
   }
 
   onLoadMore(): void {
-    this.jobService.loadMore();
+    this.store.loadMore();
   }
 
   onApplied(jobId: string): void {
-    this.appliedJobIds.update((prev: Set<string>) => {
-      const next: Set<string> = new Set<string>(prev);
-      next.add(jobId);
-      return next;
-    });
+    this.store.markApplied(jobId);
   }
 }

@@ -2,11 +2,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   output,
+  OutputEmitterRef,
   signal,
   WritableSignal,
   input,
   InputSignal,
-  OutputEmitterRef,
 } from '@angular/core';
 
 @Component({

@@ -31,3 +31,14 @@ export interface Page {
   name: string;
   work_space_meta_data?: WorkspaceMeta;
 }
+export interface JobsState {
+  jobs: Job[];
+  loading: boolean;
+  currentPage: number;
+  perPage: number;
+  lastPage: number;
+  filter: string;
+  appliedJobIds: Set<string>;
+  savedIds: Set<string>;
+  error: string | null;
+}

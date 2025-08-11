@@ -22,7 +22,7 @@
       <!-- type badge (compact) -->
       @if (job().type; as t) {
         <span
-          class="inline-flex items-center text-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 min-w-19"
+          class="inline-flex items-center text-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 min-w-[5rem]"
           [ngClass]="{
             'bg-emerald-100 text-emerald-800 ring-emerald-200':
               t.toLowerCase() === 'full-time' ||
@@ -65,12 +65,13 @@
             d="M10 2a6 6 0 00-6 6c0 4 6 10 6 10s6-6 6-10a6 6 0 00-6-6zm0 8a2 2 0 110-4 2 2 0 010 4z" />
         </svg>
         <span class="truncate max-w-full">
-          {{ job().location?.city?.name || ''
-          }}{{
+          {{ job().location?.city?.name || '' }}
+          {{
             job().location?.city?.name && job().location?.country?.name
               ? ', '
               : ''
-          }}{{ job().location?.country?.name || '' }}
+          }}
+          {{ job().location?.country?.name || '' }}
         </span>
       </div>
 
