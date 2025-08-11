@@ -20,7 +20,6 @@ export class JobsFilter {
 
   onFilterChange(value: string): void {
     this.filterKeyword.set(value);
-
     clearTimeout(this.debounceTimer);
     this.debounceTimer = setTimeout(() => {
       this.filterChanged.emit(this.filterKeyword());

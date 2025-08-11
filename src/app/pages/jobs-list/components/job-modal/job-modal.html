@@ -8,17 +8,16 @@
     (keydown.enter)="close()"
     (keydown.space)="close()">
     <div
+      #dialogRef
       class="relative w-full max-w-xl bg-white rounded-xl shadow-2xl ring-1 ring-black/10 p-6 focus:outline-none transition-transform duration-200 ease-out"
       (click)="$event.stopPropagation()"
       tabindex="0"
       role="document"
-      (keydown.enter)="$event.stopPropagation()">
+      (keydown)="$event.stopPropagation()">
       <button
         aria-label="Close modal"
         class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
-        (click)="close()"
-        (keydown.enter)="close()"
-        (keydown.space)="close()">
+        (click)="close()">
         ✕
       </button>
 
@@ -46,7 +45,7 @@
           <button
             class="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
             (click)="saveClicked()"
-            [disabled]="!job() || isSaved()">
+            [disabled]="isSaved()">
             @if (isSaved()) {
               <span>Already Saved</span>
             } @else {

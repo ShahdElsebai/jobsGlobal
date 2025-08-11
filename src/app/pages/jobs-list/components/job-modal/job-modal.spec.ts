@@ -1,14 +1,33 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
-import { JobModal } from './job-modal';
-import { Job } from '../../model/jobs-list.model';
-import { ToastService } from '../../../../shared/component/toast/service/toast-service';
+import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { ToastTypes } from '../../../../shared/component/toast/model/toast.model';
+import { ToastService } from '../../../../shared/component/toast/service/toast-service';
+import { Job } from '../../model/jobs-list.model';
+import { JobsStore } from '../../state/jobs.store';
+import { JobModal } from './job-modal';
+
+class MockJobsStore {
+  appliedJobIds = signal<Set<string>>(new Set());
+  savedIds = signal<Set<string>>(new Set());
+
+  markApplied = jasmine.createSpy('markApplied').and.callFake((id: string) => {
+    const next = new Set(this.appliedJobIds());
+    next.add(id);
+    this.appliedJobIds.set(next);
+  });
+
+  markSaved = jasmine.createSpy('markSaved').and.callFake((id: string) => {
+    const next = new Set(this.savedIds());
+    next.add(id);
+    this.savedIds.set(next);
+  });
+}
 
 describe('JobModal', () => {
   let fixture: ComponentFixture<JobModal>;
   let component: JobModal;
   let toastSpy: jasmine.SpyObj<ToastService>;
+  let store: MockJobsStore;
 
   const jobA: Job = {
     id: '1',
@@ -25,12 +44,14 @@ describe('JobModal', () => {
 
   beforeEach(async () => {
     toastSpy = jasmine.createSpyObj('ToastService', ['show', 'remove']);
+    store = new MockJobsStore();
 
     await TestBed.configureTestingModule({
       imports: [JobModal],
       providers: [
         provideZonelessChangeDetection(),
         { provide: ToastService, useValue: toastSpy },
+        { provide: JobsStore, useValue: store },
       ],
     }).compileComponents();
 
@@ -43,73 +64,81 @@ describe('JobModal', () => {
     expect(component).toBeTruthy();
   });
 
-  it('open(): shows modal, sets job, not applied by default', () => {
+  it('open(): shows modal and sets job', () => {
     component.open(jobA);
     expect(component.isOpen()).toBeTrue();
     expect(component.job()).toEqual(jobA);
-    expect(component.applied()).toBeFalse();
     expect(component.showApplicationForm()).toBeFalse();
   });
 
-  it('open(): respects appliedJobIds input (marks as applied)', () => {
-    fixture.componentRef.setInput('appliedJobIds', new Set([jobA.id]));
+  it('applied() reflects store.appliedJobIds', () => {
     component.open(jobA);
-    expect(component.applied()).toBeTrue();
+    expect(component.applied()).toBeFalse();
 
-    component.applyClicked();
-    expect(component.applyJob()).toBeNull();
-    expect(component.showApplicationForm()).toBeFalse();
+    store.appliedJobIds.set(new Set([jobA.id]));
+    fixture.detectChanges();
+
+    expect(component.applied()).toBeTrue();
   });
 
-  it('applyClicked(): opens form when allowed', () => {
+  it('isSaved() reflects store.savedIds', () => {
+    component.open(jobA);
+    expect(component.isSaved()).toBeFalse();
+
+    store.savedIds.set(new Set([jobA.id]));
+    fixture.detectChanges();
+
+    expect(component.isSaved()).toBeTrue();
+  });
+
+  it('applyClicked(): opens form when not applied', () => {
     component.open(jobA);
     component.applyClicked();
     expect(component.applyJob()).toEqual(jobA);
     expect(component.showApplicationForm()).toBeTrue();
   });
 
-  it('applyClicked(): no-op if no job loaded', () => {
+  it('applyClicked(): no-op when already applied', () => {
+    store.appliedJobIds.set(new Set([jobA.id]));
+    component.open(jobA);
+
     component.applyClicked();
     expect(component.applyJob()).toBeNull();
     expect(component.showApplicationForm()).toBeFalse();
   });
 
-  it('onSubmitSuccess(): sets applied, hides form, emits id, shows success toast', () => {
-    let emittedId: string | undefined;
-    component.appliedJob.subscribe(id => (emittedId = id));
-
+  it('onSubmitSuccess(): marks applied, toasts success, hides form, and closes', () => {
     component.open(jobA);
     component.applyClicked();
+
     component.onSubmitSuccess();
 
-    expect(component.applied()).toBeTrue();
-    expect(component.showApplicationForm()).toBeFalse();
-    expect(emittedId).toBe(jobA.id);
+    expect(store.markApplied).toHaveBeenCalledWith(jobA.id);
     expect(toastSpy.show).toHaveBeenCalledWith(
       'Application submitted successfully!',
       ToastTypes.Success
     );
+    expect(component.showApplicationForm()).toBeFalse();
+    expect(component.isOpen()).toBeFalse();
   });
 
   it('cancelApplication(): hides form, keeps modal open', () => {
     component.open(jobA);
     component.applyClicked();
+
     component.cancelApplication();
 
     expect(component.showApplicationForm()).toBeFalse();
     expect(component.isOpen()).toBeTrue();
   });
 
-  it('saveClicked(): first save stores job, adds to saved set, toasts success, and closes', () => {
+  it('saveClicked(): first save marks saved, toasts success, and closes', () => {
     component.open(jobA);
     fixture.detectChanges();
 
     component.saveClicked();
 
-    expect(component.saveJob()).toEqual(jobA);
-    expect(component.isSaved()).toBeTrue();
-    expect(component.savedIds().has(jobA.id)).toBeTrue();
-
+    expect(store.markSaved).toHaveBeenCalledWith(jobA.id);
     expect(toastSpy.show).toHaveBeenCalledWith(
       'Saved successfully!',
       ToastTypes.Success
@@ -118,30 +147,22 @@ describe('JobModal', () => {
     expect(component.job()).toBeNull();
   });
 
-  it('saveClicked(): second click on already saved job is guarded (no toast, no close)', () => {
-    component.open(jobA);
-    component.saveClicked();
-
+  it('saveClicked(): guarded when already saved (no toast, no close)', () => {
+    store.savedIds.set(new Set([jobA.id]));
     component.open(jobA);
     fixture.detectChanges();
 
-    const callsBefore = toastSpy.show.calls.count();
+    const before = toastSpy.show.calls.count();
     component.saveClicked();
 
     expect(component.isOpen()).toBeTrue();
-    expect(toastSpy.show.calls.count()).toBe(callsBefore);
-  });
-
-  it('open(): reflects saved state in isSaved() after job was saved earlier', () => {
-    component.savedIds.set(new Set([jobA.id]));
-    component.open(jobA);
-
-    expect(component.isSaved()).toBeTrue();
+    expect(toastSpy.show.calls.count()).toBe(before);
   });
 
   it('close(): hides and clears job and form', () => {
     component.open(jobA);
     component.applyClicked();
+
     component.close();
 
     expect(component.isOpen()).toBeFalse();
@@ -156,14 +177,5 @@ describe('JobModal', () => {
     const el: HTMLElement = fixture.nativeElement;
     expect(el.textContent).toContain(jobA.title);
     expect(el.textContent).toContain(jobA.page.name);
-  });
-
-  it('applyClicked(): no-op if already applied (state-level guard)', () => {
-    component.open(jobA);
-    component.applied.set(true);
-
-    component.applyClicked();
-    expect(component.applyJob()).toBeNull();
-    expect(component.showApplicationForm()).toBeFalse();
   });
 });
