@@ -101,7 +101,7 @@ export const JobsStore: InjectionToken<JobsStoreInstance> = signalStore(
     })
   ),
 
-  withMethods((store: StoreCtx): JobsMethods => {
+  withMethods((store: StoreCtx) => {
     const http: HttpClient = inject(HttpClient);
     const toast: ToastService = inject(ToastService);
     const endpoint: string = `${environment.BASE_URL}/jobs/all`;
