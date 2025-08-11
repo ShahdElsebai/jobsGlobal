@@ -37,7 +37,7 @@
             (click)="applyClicked()"
             [disabled]="applied()">
             @if (applied()) {
-              <span>Applied ✓</span>
+              <span>Already Applied</span>
             } @else {
               <span>Apply</span>
             }
@@ -45,8 +45,13 @@
 
           <button
             class="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-            (click)="saveClicked()">
-            Save Job
+            (click)="saveClicked()"
+            [disabled]="!job() || isSaved()">
+            @if (isSaved()) {
+              <span>Already Saved</span>
+            } @else {
+              <span>Save Job</span>
+            }
           </button>
         </div>
       } @else {

@@ -42,5 +42,8 @@
       <p class="text-center text-gray-500 mt-6">No jobs found.</p>
     }
   }
-  <app-job-modal #jobModal></app-job-modal>
+  <app-job-modal
+    #jobModal
+    [appliedJobIds]="appliedJobIds()"
+    (appliedJob)="onApplied($event)"></app-job-modal>
 </div>

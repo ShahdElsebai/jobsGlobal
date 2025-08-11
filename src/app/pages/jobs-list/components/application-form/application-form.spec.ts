@@ -69,7 +69,7 @@ describe('ApplicationForm', () => {
     expect(component.submitting()).toBeFalse();
   });
 
-  it('should emit job id, toast success, and stop submitting on valid submit', () => {
+  it('should emit job id and stop submitting on valid submit (no success toast)', () => {
     fixture.componentRef.setInput('job', validJob);
     fillValidForm();
 
@@ -83,11 +83,9 @@ describe('ApplicationForm', () => {
     fixture.detectChanges();
 
     expect(component.submitting()).toBeFalse();
-    expect(toastSpy.show).toHaveBeenCalledWith(
-      'Application submitted successfully!',
-      ToastTypes.Success
-    );
     expect(receivedId).toBe(validJob.id);
+    expect(component.appliedJobs.has(validJob.id)).toBeTrue();
+    expect(toastSpy.show).not.toHaveBeenCalled();
   });
 
   it('onFileSelected: rejects >3MB and toasts error', () => {

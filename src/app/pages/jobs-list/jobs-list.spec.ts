@@ -46,7 +46,7 @@ class MockJobService {
   loadMore = jasmine.createSpy('loadMore').and.callFake(() => {
     const nextPage = this.currentPage() + 1;
     this.currentPage.set(nextPage);
-    this.jobs.update(jobs => [...jobs]);
+    this.jobs.update(list => [...list]);
   });
 }
 
@@ -81,7 +81,7 @@ describe('JobsList', () => {
     expect(component.filteredJobs().length).toBe(mockJobs.length);
   });
 
-  it('should filter jobs based on keyword', () => {
+  it('should filter jobs by title (case-insensitive)', () => {
     component.onFilterChange('backend');
     fixture.detectChanges();
 
@@ -90,8 +90,73 @@ describe('JobsList', () => {
     expect(filtered[0].title.toLowerCase()).toContain('backend');
   });
 
+  it('should filter jobs by location (city or country)', () => {
+    component.onFilterChange('toronto');
+    fixture.detectChanges();
+
+    const filtered = component.filteredJobs();
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].location?.city?.name?.toLowerCase()).toBe('toronto');
+  });
+
   it('should call loadMore on service when onLoadMore is triggered', () => {
     component.onLoadMore();
     expect(jobService.loadMore).toHaveBeenCalled();
+  });
+
+  it('initialLoading should be true only when loading and no jobs yet', () => {
+    jobService.jobs.set([]);
+    jobService.loading.set(true);
+    expect(component.initialLoading()).toBeTrue();
+
+    jobService.jobs.set(mockJobs);
+    expect(component.initialLoading()).toBeFalse();
+
+    jobService.jobs.set([]);
+    jobService.loading.set(false);
+    expect(component.initialLoading()).toBeFalse();
+  });
+
+  it('loadMoreDisabled should reflect loading or when currentPage >= lastPage', () => {
+    jobService.loading.set(true);
+    expect(component.loadMoreDisabled()).toBeTrue();
+
+    jobService.loading.set(false);
+    jobService.currentPage.set(1);
+    jobService.lastPage.set(3);
+    expect(component.loadMoreDisabled()).toBeFalse();
+
+    jobService.currentPage.set(3);
+    jobService.lastPage.set(3);
+    expect(component.loadMoreDisabled()).toBeTrue();
+  });
+
+  it('openModalWithJob should set selectedJob and invoke modal.open', () => {
+    fixture.detectChanges();
+    const job = mockJobs[0];
+
+    spyOn(component.jobModal, 'open');
+
+    component.openModalWithJob(job);
+
+    expect(component.selectedJob()).toEqual(job);
+    expect(component.jobModal.open).toHaveBeenCalledWith(job);
+  });
+
+  it('closeModal should delegate to modal.close', () => {
+    spyOn(component.jobModal, 'close');
+    component.closeModal();
+    expect(component.jobModal.close).toHaveBeenCalled();
+  });
+
+  it('onApplied should add job id to appliedJobIds set (no duplicates)', () => {
+    expect(component.appliedJobIds().has('1')).toBeFalse();
+
+    component.onApplied('1');
+    expect(component.appliedJobIds().has('1')).toBeTrue();
+
+    const sizeBefore = component.appliedJobIds().size;
+    component.onApplied('1');
+    expect(component.appliedJobIds().size).toBe(sizeBefore);
   });
 });

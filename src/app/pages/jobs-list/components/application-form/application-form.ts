@@ -92,10 +92,6 @@ export class ApplicationForm {
       const jobId: string = this.job()?.id || '';
       if (jobId) {
         this.appliedJobs.add(jobId);
-        this.toast.show(
-          'Application submitted successfully!',
-          ToastTypes.Success
-        );
         this.submitSuccess.emit(jobId);
       }
     }, 1500);

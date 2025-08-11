@@ -24,6 +24,8 @@ import { JobModal } from './components/job-modal/job-modal';
 export class JobsList {
   filterKeyword: WritableSignal<string> = signal('');
   selectedJob: WritableSignal<Job | null> = signal<Job | null>(null);
+  appliedJobIds: WritableSignal<Set<string>> = signal<Set<string>>(new Set());
+
   @ViewChild('jobModal') jobModal!: JobModal;
 
   constructor(public jobService: JobService) {
@@ -68,5 +70,13 @@ export class JobsList {
 
   onLoadMore(): void {
     this.jobService.loadMore();
+  }
+
+  onApplied(jobId: string): void {
+    this.appliedJobIds.update((prev: Set<string>) => {
+      const next: Set<string> = new Set<string>(prev);
+      next.add(jobId);
+      return next;
+    });
   }
 }
