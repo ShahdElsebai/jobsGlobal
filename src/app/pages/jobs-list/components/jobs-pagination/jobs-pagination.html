@@ -1,8 +1,12 @@
 <div class="flex justify-center mt-6">
-  <button
-    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
-    [disabled]="loading() || disabled()"
-    (click)="onLoadMore()">
-    {{ loading() ? 'Loading...' : 'Load More' }}
-  </button>
+  @if (!disabled() || loading()) {
+    <button
+      class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
+      [disabled]="loading() || disabled()"
+      (click)="onLoadMore()">
+      {{ loading() ? 'Loading...' : 'Load More' }}
+    </button>
+  } @else {
+    <p class="text-gray-500 text-sm">No more results</p>
+  }
 </div>

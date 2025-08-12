@@ -12,9 +12,10 @@ import {
 import { CommonModule } from '@angular/common';
 import { ApplicationForm } from '../application-form/application-form';
 import { Job } from '../../model/jobs-list.model';
-import { JobsStore, JobsStoreInstance } from '../../state/jobs.store';
+import { JobsStore } from '../../state/jobs.store';
 import { ToastService } from '../../../../shared/component/toast/service/toast-service';
 import { ToastTypes } from '../../../../shared/component/toast/model/toast.model';
+import { JobsStoreInstance } from '../../state/model/jobs.store.model';
 
 @Component({
   selector: 'app-job-modal',

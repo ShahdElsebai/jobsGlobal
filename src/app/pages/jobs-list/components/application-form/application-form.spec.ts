@@ -88,6 +88,22 @@ describe('ApplicationForm', () => {
     expect(toastSpy.show).not.toHaveBeenCalled();
   });
 
+  it('shows phone pattern error when format is invalid', () => {
+    fixture.componentRef.setInput('job', validJob);
+
+    component.form.controls.phone.setValue('abc');
+    component.form.controls.phone.markAsTouched();
+
+    fixture.detectChanges();
+
+    component.onSubmit();
+
+    fixture.detectChanges();
+
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.textContent).toContain('Enter a valid phone number');
+  });
+
   it('onFileSelected: rejects >3MB and toasts error', () => {
     const big = new File([new Uint8Array(3 * 1024 * 1024 + 1)], 'cv-big.pdf', {
       type: 'application/pdf',

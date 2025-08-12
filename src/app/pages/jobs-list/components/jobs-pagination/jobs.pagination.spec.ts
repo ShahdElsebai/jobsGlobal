@@ -16,7 +16,6 @@ describe('JobsPagination', () => {
     fixture = TestBed.createComponent(JobsPagination);
     component = fixture.componentInstance;
 
-    // Cast signals as InputSignal<boolean> to satisfy typing
     component.loading = signal(false) as unknown as InputSignal<boolean>;
     component.disabled = signal(false) as unknown as InputSignal<boolean>;
 
