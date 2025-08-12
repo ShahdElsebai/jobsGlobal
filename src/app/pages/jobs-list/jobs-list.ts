@@ -12,7 +12,8 @@ import { JobsFilter } from './components/jobs-filter/jobs-filter';
 import { JobsPagination } from './components/jobs-pagination/jobs-pagination';
 import { Job } from './model/jobs-list.model';
 import { JobModal } from './components/job-modal/job-modal';
-import { JobsStore, JobsStoreInstance } from './state/jobs.store';
+import { JobsStore } from './state/jobs.store';
+import { JobsStoreInstance } from './state/model/jobs.store.model';
 
 @Component({
   selector: 'app-jobs-list',

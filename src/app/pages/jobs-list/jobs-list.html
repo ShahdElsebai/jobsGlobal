@@ -6,6 +6,7 @@
     </h1>
     <div class="w-full sm:w-80">
       <app-jobs-filter
+        [value]="store.filter()"
         (filterChanged)="onFilterChange($event)"></app-jobs-filter>
     </div>
   </div>
@@ -51,7 +52,27 @@
           (loadMore)="onLoadMore()"></app-jobs-pagination>
       </div>
     } @else {
-      <p class="text-center text-gray-500 mt-6">No jobs found.</p>
+      <div
+        class="text-center text-gray-500 mt-10 flex flex-col items-center gap-4">
+        <svg
+          class="h-16 w-16"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" opacity=".2" />
+          <path
+            d="M8 12h8M8 9h5M8 15h6"
+            stroke="currentColor"
+            stroke-linecap="round" />
+        </svg>
+        <p class="text-base">No jobs match your filters.</p>
+        <button
+          type="button"
+          class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-100"
+          (click)="onFilterChange('')">
+          Clear filter
+        </button>
+      </div>
     }
   }
 

@@ -30,7 +30,6 @@ describe('JobCard', () => {
     fixture = TestBed.createComponent(JobCard);
     component = fixture.componentInstance;
 
-    // Cast signal as InputSignal<Job> to satisfy typing
     component.job = signal(mockJob) as unknown as InputSignal<Job>;
 
     fixture.detectChanges();

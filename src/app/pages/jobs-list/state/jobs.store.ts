@@ -1,4 +1,4 @@
-import { inject, computed, Signal, InjectionToken } from '@angular/core';
+import { inject, computed, InjectionToken } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
   signalStore,
@@ -6,13 +6,17 @@ import {
   withComputed,
   withMethods,
   patchState,
-  WritableStateSource,
 } from '@ngrx/signals';
 import { environment } from '../../../../environments/environments';
 import { Job, JobsApiResponse, JobsState } from '../model/jobs-list.model';
 import { initialState } from '../config/jobs-list.config';
 import { ToastService } from '../../../shared/component/toast/service/toast-service';
 import { ToastTypes } from '../../../shared/component/toast/model/toast.model';
+import {
+  JobsStoreInstance,
+  JobsStateSignals,
+  StoreCtx,
+} from './model/jobs.store.model';
 
 const APPLIED_KEY: string = 'jobs.applied';
 const SAVED_KEY: string = 'jobs.saved';
@@ -37,43 +41,6 @@ function writeSet(key: string, set: Set<string>): void {
     console.warn('Skipping localStorage write for key:', key, err);
   }
 }
-
-/** Signals for state shape exposed by the store */
-interface JobsStateSignals {
-  jobs: Signal<Job[]>;
-  filter: Signal<string>;
-  loading: Signal<boolean>;
-  currentPage: Signal<number>;
-  lastPage: Signal<number>;
-  perPage: Signal<number>;
-  appliedJobIds: Signal<Set<string>>;
-  savedIds: Signal<Set<string>>;
-  error: Signal<string | null>;
-}
-
-/** Extra computed signals the store exposes */
-interface JobsComputed {
-  filteredJobs: Signal<Job[]>;
-  initialLoading: Signal<boolean>;
-  loadMoreDisabled: Signal<boolean>;
-}
-
-/** Methods the store exposes */
-interface JobsMethods {
-  fetchJobs(): void;
-  loadMore(): void;
-  setFilter(value: string): void;
-  markApplied(id: string): void;
-  markSaved(id: string): void;
-}
-
-/** Public API of the injected store instance */
-export type JobsStoreInstance = JobsStateSignals & JobsComputed & JobsMethods;
-
-/** Internal type for the withMethods callback param */
-type StoreCtx = WritableStateSource<JobsState> &
-  JobsStateSignals &
-  Partial<JobsComputed>;
 
 /** Typed injection token for the store */
 export const JobsStore: InjectionToken<JobsStoreInstance> = signalStore(

@@ -42,7 +42,10 @@ export class ApplicationForm {
   form: FormGroup<ApplicationFormItems> = new FormGroup<ApplicationFormItems>({
     name: new FormControl('', Validators.required),
     email: new FormControl('', [Validators.required, Validators.email]),
-    phone: new FormControl('', Validators.required),
+    phone: new FormControl('', [
+      Validators.required,
+      Validators.pattern(/^[0-9+\-() ]{7,20}$/),
+    ]),
     country: new FormControl('', Validators.required),
     education: new FormControl('', Validators.required),
     position: new FormControl('', Validators.required),
